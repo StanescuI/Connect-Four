@@ -1,0 +1,11 @@
+button {
+    padding: 30px;
+    margin: 10px;
+    border-radius: 50px;
+}
+#coloredBox {
+    background-color: rgb(218, 212, 94);
+    width: 620px;
+    height: 500px;
+    padding-right: 10px;
+}

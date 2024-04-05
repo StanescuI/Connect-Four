@@ -1,79 +1,97 @@
 let playerTurn = 1;
-let scoreBoard = [];
+let colors = ["blue", "red"];
+const BOUNDRY = 3;
+const ROWS = 6;
+const COLUMNS = 7;
+const CELLS = 42;
+let scoreBoard = [[0, 0, 0, 0, 0, 0, 0],
+                  [0, 0, 0, 0, 0, 0, 0], 
+                  [0, 0, 0, 0, 0, 0, 0],
+                  [0, 0, 0, 0, 0, 0, 0],
+                  [0, 0, 0, 0, 0, 0, 0],
+                  [0, 0, 0, 0, 0, 0, 0]];
 let result = document.getElementById("result");
 let totalMoves = 0;
-for (let i = 0; i < 42; ++i) {
-    scoreBoard[i] = 0;
-}
 
 function markToken(columnIndex) {
-    for (let i = 5; i >= 0; --i) {
-        if (scoreBoard[columnIndex - 1 + 7 * i] === 0) {
-            scoreBoard[columnIndex - 1 + 7 * i] = playerTurn;
-            let buttonColor = document.getElementById(`${columnIndex + 7 * i}`);
-            if (playerTurn === 1) {
-                buttonColor.style.backgroundColor = "red";
-                result.innerText = "Player 2 turn"
+    for (let i = ROWS - 1; i >= 0; --i) {
+        if (scoreBoard[i][columnIndex - 1] === 0) {
+            scoreBoard[i][columnIndex - 1] = playerTurn + 1;
+            let buttonColor = document.getElementById(`${columnIndex + COLUMNS * i}`);
+                buttonColor.style.backgroundColor = `${colors[playerTurn]}`;
+                result.innerText = `Player ${playerTurn + 1} turn`
                 ++totalMoves;
                 checkWinner();
-                playerTurn = 2;
-            } else {
-                buttonColor.style.backgroundColor = "blue";
-                result.innerText = "Player 1 turn"
-                ++totalMoves;
-                checkWinner();
-                playerTurn = 1;
-            }
+                ++playerTurn;
+                playerTurn = playerTurn % colors.length;
             break;
         }
     }
 }
 
 function checkWinner() {
-    for (let i = 0; i < 36;i += 7) {
-        for (let j = 0; j < 4; ++j) {
-            if (scoreBoard[j + i] !== 0 && scoreBoard[j + i] === scoreBoard[j + i + 1] &&
-            scoreBoard[j + i] === scoreBoard[j + i + 2] && scoreBoard[j + i] === scoreBoard[j + i + 3]) {
-                result.innerText = `Player ${playerTurn} won`;
-                gameOver();
-            }
-        }
-    }
-    for (let i = 0; i < 22; i += 7) {
-        for (let j = 0; j < 8; ++j) {
-            if (scoreBoard[j + i] !== 0 && scoreBoard[j + i] === scoreBoard[j + i + 7] &&
-            scoreBoard[j + i] === scoreBoard[j + i + 14] && scoreBoard[j + i] === scoreBoard[j + i + 21]) {
-                result.innerText = `Player ${playerTurn} won`;
-                gameOver();
-            }
-        }
-    }
-    for (let i = 0; i < 27;i += 7) {
-        for (let j = 0; j < 4; ++j) {
-            if (scoreBoard[j + i] !== 0 && scoreBoard[j + i] === scoreBoard[j + i + 8] &&
-            scoreBoard[j + i] === scoreBoard[j + i + 16] && scoreBoard[j + i] === scoreBoard[j + i + 24]) {
-                result.innerText = `Player ${playerTurn} won`;
-                gameOver();
-            }
-        }
-    }
-    for (let i = 0; i < 27;i += 7) {
-        for (let j = 0; j < 8; ++j) {
-            if (scoreBoard[j + i] !== 0 && scoreBoard[j + i] === scoreBoard[j + i + 6] &&
-            scoreBoard[j + i] === scoreBoard[j + i + 12] && scoreBoard[j + i] === scoreBoard[j + i + 18]) {
-                result.innerText = `Player ${playerTurn} won`;
-                gameOver();
-            }
-        }
-    }
-    if (totalMoves === 42) {
+    checkRows();
+    checkColumns();
+    checkMainDiag();
+    checkSecDiag();
+    if (totalMoves === CELLS) {
         result.innerText = "The game ended in a tie !"
         gameOver();
     }
 }
 
+function checkRows() {
+    for (let i = 0; i < ROWS; ++i) {
+        for (let j = 0; j < COLUMNS - BOUNDRY; ++j) {
+            if (scoreBoard[i][j] !== 0 && scoreBoard[i][j] === scoreBoard[i][j + 1] &&
+                scoreBoard[i][j] === scoreBoard[i][j + 2] && scoreBoard[i][j] === scoreBoard[i][j + 3]) {
+                result.innerText = `Player ${playerTurn + 1} won`;
+                gameOver();
+            }
+        }
+    }
+}
+
+function checkColumns() {
+    for (let i = 0; i < ROWS - BOUNDRY; ++i) {
+        for (let j = 0; j < COLUMNS; ++j) {
+            if (scoreBoard[i][j] !== 0 &&scoreBoard[i][j] === scoreBoard[i + 1][j] &&
+                scoreBoard[i][j] === scoreBoard[i + 2][j] && scoreBoard[i][j] === scoreBoard[i + 3][j]) {
+                result.innerText = `Player ${playerTurn + 1} won`;
+                gameOver();
+            }
+        }
+    }
+}
+
+function checkMainDiag() {
+    for (let i = 0; i < ROWS - BOUNDRY; ++i) {
+        for (let j = 0; j < COLUMNS - BOUNDRY; ++j) {
+            if (scoreBoard[i][j] !== 0 && scoreBoard[i][j] === scoreBoard[i + 1][j + 1] &&
+                scoreBoard[i][j] === scoreBoard[i + 2][j + 2] && scoreBoard[i][j] === scoreBoard[i + 3][j + 3]) {
+                result.innerText = `Player ${playerTurn + 1} won`;
+                gameOver();
+            }
+        }
+    }
+}
+
+function checkSecDiag() {
+    for (let i = BOUNDRY; i < ROWS; ++i) {
+        for (let j = 0; j < COLUMNS - BOUNDRY; ++j) {
+            if (scoreBoard[i][j] !== 0 && scoreBoard[i][j] === scoreBoard[i - 1][j + 1] &&
+                scoreBoard[i][j] === scoreBoard[i - 2][j + 2] && scoreBoard[i][j] === scoreBoard[i - 3][j + 3]) {
+                result.innerText = `Player ${playerTurn + 1} won`;
+                gameOver();
+            }
+        }
+    }
+}
+
 function gameOver() {
-    for (let i = 0; i < 42; ++i) {
-        scoreBoard[i] = 3;
+    for (let i = 0; i < ROWS; ++i) {
+        for (let j = 0; j < COLUMNS; ++j) {
+            scoreBoard[i][j] = null;
+        }
     }
 }
